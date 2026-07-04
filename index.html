@@ -1066,7 +1066,12 @@
      ============================================================ */
   @media (max-width: 820px){
     html, body{
-      scroll-snap-type: y mandatory;
+      /* Native "mandatory" snapping completes the page turn the instant
+         you stop scrolling, which is what was cutting people off before
+         they finished reading a long list (e.g. the entourage names).
+         A small JS timer below now does the actual page-turn instead,
+         so this is intentionally left as "none". */
+      scroll-snap-type: none;
     }
 
     .hero,
@@ -2005,6 +2010,65 @@
     }, { threshold: 0.5 });
 
     pages.forEach(p => observer.observe(p.el));
+  })();
+
+  /* ============================================================
+     HOLD-TO-ADVANCE PAGE TURN (mobile)
+     Replaces native CSS scroll-snap, which used to complete the
+     page turn the instant scrolling stopped — cutting people off
+     mid-list (e.g. before they'd finished reading the entourage
+     names) any time a "page" was taller than one screen.
+     Scrolling DOWN now has to be a sustained, deliberate scroll
+     for ~1.2s before the page actually turns; if you scroll back
+     before that, nothing happens. Scrolling UP stays quick, since
+     that direction already felt right.
+     ============================================================ */
+  (function initHoldToAdvance(){
+    const mq = window.matchMedia('(max-width: 820px)');
+    const pages = Array.from(document.querySelectorAll(
+      '.hero, .dark-section, .timeline-section, .entourage-section, .gallery-section, .dresscode-section'
+    ));
+    if (pages.length < 2) return;
+
+    const ADVANCE_HOLD_MS = 1200; // scrolling forward: wait for sustained intent
+    const BACK_HOLD_MS    = 200;  // scrolling back: stay snappy
+
+    let lastScrollY = window.scrollY;
+    let scrollDir = 1;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      scrollDir = y > lastScrollY ? 1 : (y < lastScrollY ? -1 : scrollDir);
+      lastScrollY = y;
+    }, { passive: true });
+
+    let activeIndex = 0;
+    let holdTimer = null;
+    const clearHold = () => { if (holdTimer){ clearTimeout(holdTimer); holdTimer = null; } };
+
+    const io = new IntersectionObserver((entries) => {
+      if (!mq.matches) return;
+      entries.forEach(entry => {
+        const idx = pages.indexOf(entry.target);
+        if (idx === -1) return;
+
+        if (entry.intersectionRatio > 0.6){
+          // fully arrived on this page — cancel any pending advance
+          activeIndex = idx;
+          clearHold();
+        } else if (idx === activeIndex && entry.intersectionRatio < 0.4){
+          // leaving the current page — only complete the turn after
+          // the scroll intent has held steady for the delay above
+          clearHold();
+          const dir = scrollDir;
+          holdTimer = setTimeout(() => {
+            const nextIdx = Math.min(Math.max(activeIndex + dir, 0), pages.length - 1);
+            pages[nextIdx].scrollIntoView({ behavior: 'smooth' });
+          }, dir > 0 ? ADVANCE_HOLD_MS : BACK_HOLD_MS);
+        }
+      });
+    }, { threshold: [0, 0.4, 0.6, 1] });
+
+    pages.forEach(p => io.observe(p));
   })();
 
   /* ============================================================
