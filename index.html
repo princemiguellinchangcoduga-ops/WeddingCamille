@@ -265,23 +265,16 @@
 
   .hero-grid{
     display:grid;
-    grid-template-columns: 0.85fr 1.15fr;
-    align-items:center;
-    gap: 14px;
-    padding: 20px 0 12px;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 28px 0 12px;
   }
   @media (min-width: 760px){
-    .hero-grid{ grid-template-columns: 1.1fr 1fr; gap: 24px; padding: 28px 0 12px; }
+    .hero-grid{ grid-template-columns: 1.1fr 1fr; align-items:center; }
   }
 
   .hero-portrait .photo-frame{
     aspect-ratio: 4/5;
-  }
-  /* on narrow screens the portrait sits in a much tighter column,
-     so use a slightly taller crop and drop the vertical padding
-     that was sized for the full-width desktop portrait */
-  @media (max-width: 759px){
-    .hero-portrait .photo-frame{ aspect-ratio: 3/4; }
   }
 
   .hero-right{ display:flex; flex-direction:column; gap: 22px; }
@@ -341,22 +334,6 @@
     color: var(--slate-gray);
     margin-top: 4px;
     display:block;
-  }
-
-  /* the hero photo+invite pair now sits side-by-side on phones too
-     (a scaled-down version of the desktop layout, not a stack), so
-     the text and countdown need to shrink to fit the narrower half
-     of the screen instead of the old full-width sizing */
-  @media (max-width: 759px){
-    .hero-right{ gap: 10px; }
-    .invite-line{ font-size: 8.5px; letter-spacing: 1px; }
-    .invite-names{ font-size: clamp(16px, 6.5vw, 24px); }
-    .invite-names .amp{ padding: 0 3px; }
-    .invite-date{ font-size: 9px; letter-spacing: 0.8px; }
-    .countdown{ gap: 5px; }
-    .countdown .unit{ padding: 5px 2px 4px; }
-    .countdown .unit .num{ font-size: clamp(13px, 4.6vw, 18px); }
-    .countdown .unit .lbl{ font-size: 6.5px; letter-spacing: 0.8px; }
   }
 
   .hero-couple-line{
@@ -1035,7 +1012,7 @@
 
     .hero-banner{ font-size: 14px; letter-spacing: 1px; padding: 12px 8px; }
 
-    .hero-grid{ gap: 10px; padding: 20px 0 8px; }
+    .hero-grid{ gap: 18px; padding: 20px 0 8px; }
 
     .hero-couple-line{
       font-size: 18px;
@@ -1101,8 +1078,6 @@
       scroll-snap-align: start;
       scroll-snap-stop: always;
       min-height: 100vh;
-      max-height: 100vh;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -1217,17 +1192,14 @@
   .song-play-btn:active{ transform: scale(0.88); }
   .bgm-toggle:active{ transform: scale(0.9); }
 
-  /* smoother, native-feeling momentum scroll on iOS inside the
-     snap-scrolling sections. NOTE: deliberately NOT setting
-     overscroll-behavior-y here — "contain" stops the scroll
-     gesture from ever handing off to the next snap section once
-     you hit this section's edge, which is what made continuous
-     swiping feel "stuck" and forced people to tap the side dots
-     instead. Leaving it as the default lets one continuous swipe
-     carry through to the next page. */
+  /* smoother, native-feeling momentum scroll on iOS. Applied to the
+     single document scroller now — the individual sections are no
+     longer separate overflow:auto containers, since nesting two
+     scrollers (the page + each section) was what made the snap
+     transitions feel abrupt/incomplete and made scrolling back up
+     unreliable. One scroller, one snap timeline, smooth both ways. */
   @media (max-width: 820px){
-    .hero, .dark-section, .timeline-section,
-    .entourage-section, .gallery-section, .dresscode-section{
+    html, body{
       -webkit-overflow-scrolling: touch;
     }
   }
@@ -1787,15 +1759,25 @@
      You shouldn't need to edit anything below this line.
      ============================================================ */
 
+  // Couple/sponsor names are written as "Name & Name". On a narrow mobile
+  // card a line can break right after the "&", leaving it stranded and
+  // the second name dangling alone on its own line. Gluing the "&" to the
+  // very next word with a non-breaking space means if a wrap is needed,
+  // it happens between the names — never right after the "&" itself.
+  function glueAmpersand(str){
+    if (typeof str !== 'string') return str;
+    return str.replace(/&\s+/g, '&\u00A0');
+  }
+
   function setText(id, value){
     const el = document.getElementById(id);
-    if (el) el.textContent = value;
+    if (el) el.textContent = glueAmpersand(value);
   }
 
   function fillList(id, items){
     const el = document.getElementById(id);
     if (!el) return;
-    el.innerHTML = items.map(name => `<li>${name}</li>`).join("");
+    el.innerHTML = items.map(name => `<li>${glueAmpersand(name)}</li>`).join("");
   }
 
   // splits a flat array into two even columns for the sponsor grids
@@ -2083,6 +2065,20 @@
 
     if (inlineBtn) inlineBtn.addEventListener('click', togglePlay);
     if (floatBtn)  floatBtn.addEventListener('click', togglePlay);
+
+    // Browsers block audio-with-sound autoplay until the visitor has
+    // interacted with the page at all — this is a fixed browser/OS
+    // policy, not something this site can override. Rather than making
+    // people hunt for the small play button, treat their very first
+    // interaction ANYWHERE on the page (a scroll, a tap, a key press) as
+    // that permission slip and turn the sound on right then.
+    function unmuteOnFirstInteraction(){
+      if (video.muted) video.muted = false;
+      if (video.paused) video.play();
+    }
+    ['touchstart', 'click', 'keydown', 'wheel'].forEach(evt =>
+      document.addEventListener(evt, unmuteOnFirstInteraction, { once: true, passive: true })
+    );
 
     // Try to start the moment the song source is ready.
     video.addEventListener('loadedmetadata', playWithSound, { once: true });
