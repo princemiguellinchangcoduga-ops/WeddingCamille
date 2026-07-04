@@ -698,14 +698,31 @@
     font-size: 14px;
     margin-bottom: 18px;
   }
-  .entourage-col .group-label{
-    font-family: var(--font-sans);
-    font-weight:700;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+  /* shared "title" treatment for every role/relationship label in the
+     entourage section — Parents, Best Man, Maid of Honor, etc. all get
+     the same elegant italic-serif mark instead of plain body text */
+  .entourage-col .group-label,
+  .role-card .group-label{
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.3px;
     text-align:center;
-    margin: 18px 0 8px;
+    color: var(--vibe-5);
+    margin: 18px 0 10px;
+    position: relative;
+    padding-bottom: 7px;
+  }
+  .entourage-col .group-label::after,
+  .role-card .group-label::after{
+    content:"";
+    position:absolute;
+    bottom:0; left:50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 1px;
+    background: var(--rule-soft);
   }
 
   .name-list{
@@ -714,8 +731,8 @@
     list-style: none;
     text-align:center;
     font-family: var(--font-sans);
-    font-size: 13px;
-    line-height: 1.95;
+    font-size: 14px;
+    line-height: 2;
     color: var(--ink);
   }
 
@@ -751,7 +768,7 @@
   }
   @media(min-width:680px){ .roles-grid{ grid-template-columns: repeat(3,1fr); } }
   .role-card{ text-align:center; }
-  .role-card .group-label{ margin-top:0; }
+  .role-card .group-label{ margin-top:0; font-size: 16px; }
 
   /* ============================================================
      5. SECTION E — WEDDING GALLERY (newspaper collage grid)
@@ -934,9 +951,9 @@
     font-family: var(--font-sans);
     font-size: 12.5px;
     color: var(--slate-gray);
-    max-width: 460px;
+    max-width: 520px;
     margin: 0 auto 22px;
-    line-height: 1.6;
+    line-height: 1.7;
   }
   .qr-grid{
     display:grid;
@@ -1037,6 +1054,11 @@
     .entourage-section{ padding: 40px 0; }
     .entourage-sub{ font-size: 14px; margin: 8px 0 26px; }
     .sponsor-cols .name-list{ text-align: center; }
+    .entourage-col .group-label,
+    .role-card .group-label{ font-size: 16px; }
+    .entourage-col h3{ font-size: 20px; }
+    .name-list{ font-size: 15px; line-height: 2.1; }
+    .entourage-col .name{ font-size: 15px; }
 
     .gallery-section{ padding: 40px 0; }
     .gallery-grid{ gap: 8px; }
@@ -1540,21 +1562,21 @@
 
     <div class="vibe-quote">
       <div class="vibe-eyebrow">The Vibe</div>
-      <p> Gentlemen: Barong Tagalog and Black Slacks</p>
-      <p> Ladies: Modern Filipiniana Long Dress</p>
+      <p>Gentlemen are welcome in a Barong Tagalog with black slacks.</p>
+      <p>Ladies are welcome in a modern Filipiniana long dress.</p>
     </div>
 
     <div class="attire-block">
       <div class="attire-group">
         <div class="group-label">Principal Sponsors</div>
-        <p>Ninong, we request you to wear a Barong Tagalog.</p>
-        <p>Ninang, we request you to wear a Filipiniana gown.</p>
+        <p>Ninong, we'd be honored to see you in a Barong Tagalog.</p>
+        <p>Ninang, we'd be honored to see you in a Filipiniana gown.</p>
       </div>
       <div class="attire-group">
         <div class="group-label">Guests &mdash; Formal Attire</div>
-        <p>We kindly ask that guests dress formally, following our color palette below.</p>
-        <p>Gentlemen: Barong Tagalog paired with black slacks.</p>
-        <p>Ladies: A modern Filipiniana long dress in any of the earth tones shown here.</p>
+        <p>We kindly invite our guests to dress formally, in keeping with the color palette below.</p>
+        <p>Gentlemen, a Barong Tagalog paired with black slacks.</p>
+        <p>Ladies, a modern Filipiniana long dress in any of the earth tones shown here.</p>
       </div>
 
       <div class="swatches">
@@ -1588,14 +1610,6 @@
     <div class="info-cards">
       <div class="info-card">
         <div class="icon-cell">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#FBFAF6" stroke-width="1.6"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C10 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C14 2 12 7 12 7z"/></svg>
-          <span class="icon-label">Gift Note</span>
-        </div>
-        <div class="text-cell">With all that we have, we've been truly blessed &mdash; your presence and prayers are all that we request. But if you desire to give nonetheless, a monetary gift is one we humbly suggest.</div>
-      </div>
-
-      <div class="info-card">
-        <div class="icon-cell">
           <svg viewBox="0 0 24 24" fill="none" stroke="#FBFAF6" stroke-width="1.6"><path d="M3 7h13l4 4v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7zM3 3l18 18"/><circle cx="12" cy="14" r="3.2"/></svg>
           <span class="icon-label">Unplugged Ceremony</span>
         </div>
@@ -1622,7 +1636,7 @@
     <!-- MONETARY GIFT / DONATION QR CODES -->
     <div class="donation-block">
       <div class="donation-title">Monetary Gift</div>
-      <div class="donation-sub">Should you wish to bless us with a gift, you may scan either QR code below.</div>
+      <div class="donation-sub">With all that we have, we've been truly blessed &mdash; your presence and prayers are all that we request. But if you desire to give nonetheless, a monetary gift is one we humbly suggest. Should you wish to bless us this way, you may scan either QR code below.</div>
       <div class="qr-grid">
         <div class="qr-card">
           <img class="qr-img" src="images/qr-landbank.jpg" alt="LandBank donation QR code for Camelle Duga" loading="lazy" decoding="async">
@@ -2018,10 +2032,16 @@
      page turn the instant scrolling stopped — cutting people off
      mid-list (e.g. before they'd finished reading the entourage
      names) any time a "page" was taller than one screen.
-     Scrolling DOWN now has to be a sustained, deliberate scroll
-     for ~1.2s before the page actually turns; if you scroll back
-     before that, nothing happens. Scrolling UP stays quick, since
-     that direction already felt right.
+
+     A pure "wait, then scrollIntoView" timer isn't enough on its
+     own — while the timer is counting down, the browser is still
+     scrolling normally underneath it, so a fast swipe can blow
+     straight past the hold. So on the way DOWN, the moment the
+     current page starts leaving, we actively HOLD the scroll
+     position in place (re-clamping it on every scroll/wheel/touch
+     tick) for ~1.2s of sustained downward intent before releasing
+     it and animating to the next page. Scrolling back UP stays
+     quick and unlocked, since that direction already felt right.
      ============================================================ */
   (function initHoldToAdvance(){
     const mq = window.matchMedia('(max-width: 820px)');
@@ -2030,20 +2050,48 @@
     ));
     if (pages.length < 2) return;
 
-    const ADVANCE_HOLD_MS = 1200; // scrolling forward: wait for sustained intent
+    const ADVANCE_HOLD_MS = 1300; // scrolling forward: wait for sustained intent
     const BACK_HOLD_MS    = 200;  // scrolling back: stay snappy
+
+    let activeIndex = 0;
+    let holdTimer = null;
+    let locked = false;
+    let lockY = 0;
+
+    const clearHold = () => { if (holdTimer){ clearTimeout(holdTimer); holdTimer = null; } };
+
+    function lockScrollAt(y){
+      locked = true;
+      lockY = y;
+    }
+    function unlockScroll(){ locked = false; }
+
+    // While locked, cancel any scroll drift back to the hold point —
+    // this is what actually stops a fast swipe/flick from escaping
+    // before the hold timer finishes.
+    window.addEventListener('scroll', () => {
+      if (locked && Math.abs(window.scrollY - lockY) > 1){
+        window.scrollTo(0, lockY);
+      }
+    }, { passive: true });
+
+    // Belt-and-suspenders: also swallow the raw input events while
+    // locked, so momentum/trackpad scrolling can't sneak through
+    // between scroll-event ticks.
+    function swallowIfLocked(e){
+      if (locked) e.preventDefault();
+    }
+    window.addEventListener('wheel', swallowIfLocked, { passive: false });
+    window.addEventListener('touchmove', swallowIfLocked, { passive: false });
 
     let lastScrollY = window.scrollY;
     let scrollDir = 1;
     window.addEventListener('scroll', () => {
+      if (locked) return;
       const y = window.scrollY;
       scrollDir = y > lastScrollY ? 1 : (y < lastScrollY ? -1 : scrollDir);
       lastScrollY = y;
     }, { passive: true });
-
-    let activeIndex = 0;
-    let holdTimer = null;
-    const clearHold = () => { if (holdTimer){ clearTimeout(holdTimer); holdTimer = null; } };
 
     const io = new IntersectionObserver((entries) => {
       if (!mq.matches) return;
@@ -2055,15 +2103,27 @@
           // fully arrived on this page — cancel any pending advance
           activeIndex = idx;
           clearHold();
-        } else if (idx === activeIndex && entry.intersectionRatio < 0.4){
-          // leaving the current page — only complete the turn after
-          // the scroll intent has held steady for the delay above
+          if (locked) unlockScroll();
+        } else if (idx === activeIndex && entry.intersectionRatio < 0.4 && !locked){
+          // leaving the current page — hold it here until the scroll
+          // intent has stayed steady for the delay above
           clearHold();
           const dir = scrollDir;
-          holdTimer = setTimeout(() => {
-            const nextIdx = Math.min(Math.max(activeIndex + dir, 0), pages.length - 1);
-            pages[nextIdx].scrollIntoView({ behavior: 'smooth' });
-          }, dir > 0 ? ADVANCE_HOLD_MS : BACK_HOLD_MS);
+          const boundaryY = window.scrollY;
+
+          if (dir > 0){
+            lockScrollAt(boundaryY);
+            holdTimer = setTimeout(() => {
+              unlockScroll();
+              const nextIdx = Math.min(activeIndex + 1, pages.length - 1);
+              pages[nextIdx].scrollIntoView({ behavior: 'smooth' });
+            }, ADVANCE_HOLD_MS);
+          } else {
+            holdTimer = setTimeout(() => {
+              const nextIdx = Math.max(activeIndex - 1, 0);
+              pages[nextIdx].scrollIntoView({ behavior: 'smooth' });
+            }, BACK_HOLD_MS);
+          }
         }
       });
     }, { threshold: [0, 0.4, 0.6, 1] });
